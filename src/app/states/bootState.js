@@ -1,5 +1,6 @@
-define(['constants/stateConstants'],
-    function(StateConstants) {
+define(['constants/stateConstants',
+        'Phaser'],
+    function(StateConstants, Phaser) {
         return function() {
             var self = this;
 
