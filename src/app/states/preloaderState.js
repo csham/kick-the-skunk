@@ -23,6 +23,7 @@ define(['constants/stateConstants'],
 
                 self.game.load.image('boot', 'build/assets/images/boot.png');
                 self.game.load.image('rock', 'build/assets/images/rock.png');
+                self.game.load.image('star', 'build/assets/images/star.png');
 
                 self.game.load.image('background', 'build/assets/images/background.png');
                 self.game.load.image('foreground', 'build/assets/images/foreground.png');

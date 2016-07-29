@@ -6,19 +6,22 @@ define(['constants/stateConstants',
 
             var DEBUG_MODE = false;
             var WORLD_GRAVITY = 1200;
-            var BOOT_MASS = 10;
+            var BOOT_MASS = 1000;
 
             var _skunk = null;
             var _boot = null;
             var _mouseBody = null;
             var _mouseBody = null;
             var _mouseConstraint = null;
+            var _emitter = null;
 
             var _mouseClick = function(pointer) {
+                _boot.body.angle = 0;
                 _boot.body.x = pointer.position.x;
                 _boot.body.y = pointer.position.y + 82;
                 _mouseConstraint = self.game.physics.p2.createRevoluteConstraint(_mouseBody, [0, 0], _boot, [16, -82]);
                 _boot.body.static = false;
+                _boot.body.mass = BOOT_MASS;
             };
             var _mouseRelease = function() {
                 self.game.physics.p2.removeConstraint(_mouseConstraint);
@@ -31,9 +34,15 @@ define(['constants/stateConstants',
                 _mouseBody.position[1] = self.game.physics.p2.pxmi(pointer.position.y);
             };
 
-            var _setupSkunkBodyPhysics = function(skunkBodyPart, skunkCollisionGroup, bootCollisionGroup, rockCollisionGroup) {
+            var _setupSkunkBodyPhysics = function(skunkBodyPart, skunkCollisionGroup, bootCollisionGroup, rockCollisionGroup, physicsDataElement) {
                 skunkBodyPart.body.debug = DEBUG_MODE;
                 skunkBodyPart.body.mass = 1;
+
+                if (physicsDataElement) {
+                    skunkBodyPart.body.clearShapes();
+                    skunkBodyPart.body.loadPolygon('physicsData', physicsDataElement);
+                }
+
                 skunkBodyPart.body.setCollisionGroup(skunkCollisionGroup);
                 skunkBodyPart.body.collides(bootCollisionGroup);
                 skunkBodyPart.body.collides(rockCollisionGroup);
@@ -44,6 +53,26 @@ define(['constants/stateConstants',
                 var lowerRotationLimit = Phaser.Math.degToRad(options.minRotationDegrees);
                 var upperRotationLimit = Phaser.Math.degToRad(options.maxRotationDegrees);
                 constraint.setLimits(lowerRotationLimit, upperRotationLimit);
+            };
+
+            var _bootContactHandler = function(body, shape1, shape2, equation) {
+                if (body && body.velocity) {
+                    _emitter.x = body.x;
+                    _emitter.y = body.y;
+                    _emitter.start(true, 2000, null, 3);
+                }
+            };
+
+            var _enableSkunkRigid = function() {
+                for (var i=0; i < _skunk.children.length; i++) {
+                    _skunk.children[i].body.static = true;
+                }
+            };
+
+            var _disableSkunkRigid = function() {
+                for (var i=0; i < _skunk.children.length; i++) {
+                    _skunk.children[i].body.static = false;
+                }
             };
 
             self.create = function() {
@@ -73,6 +102,8 @@ define(['constants/stateConstants',
                 var skunkCollisionGroup = self.game.physics.p2.createCollisionGroup();
 
                 _skunk = self.game.add.group();
+                _skunk.enableBody = true;
+                _skunk.physicsBodyType = Phaser.Physics.P2JS;
 
                 var skunkTail = _skunk.create(skunkBaseXPos + 7, skunkBaseYPos - 40, 'skunk-tail');
                 physicsEnabledObjects.push(skunkTail);
@@ -114,10 +145,10 @@ define(['constants/stateConstants',
                 _boot.body.debug = DEBUG_MODE;
                 _boot.body.clearShapes();
                 _boot.body.loadPolygon('physicsData', 'boot');
-                _boot.body.mass = BOOT_MASS;
                 _boot.body.static = true;
                 _boot.body.setCollisionGroup(bootCollisionGroup);
                 _boot.body.collides(skunkCollisionGroup);
+                _boot.body.onBeginContact.add(_bootContactHandler);
 
                 rock.body.debug = DEBUG_MODE;
                 rock.body.clearShapes();
@@ -126,10 +157,15 @@ define(['constants/stateConstants',
                 rock.body.setCollisionGroup(rockCollisionGroup);
                 rock.body.collides(skunkCollisionGroup);
 
+                _emitter = self.game.add.emitter(0, 0, 100);
+                _emitter.makeParticles('star');
+                _emitter.gravity = 200;
+                _emitter.setScale(0.2, 1, 0.2, 1, 0);
+
                 _mouseBody = new p2.Body();
                 self.game.physics.p2.world.addBody(_mouseBody);
 
-                _setupSkunkBodyPhysics(skunkTail, skunkCollisionGroup, bootCollisionGroup, rockCollisionGroup);
+                _setupSkunkBodyPhysics(skunkTail, skunkCollisionGroup, bootCollisionGroup, rockCollisionGroup, 'skunkTail');
                 _setupSkunkBodyPhysics(skunkLeftArm, skunkCollisionGroup, bootCollisionGroup, rockCollisionGroup);
                 _setupSkunkBodyPhysics(skunkLeftHand, skunkCollisionGroup, bootCollisionGroup, rockCollisionGroup);
                 _setupSkunkBodyPhysics(skunkRightArm, skunkCollisionGroup, bootCollisionGroup, rockCollisionGroup);
@@ -138,8 +174,8 @@ define(['constants/stateConstants',
                 _setupSkunkBodyPhysics(skunkLeftFoot, skunkCollisionGroup, bootCollisionGroup, rockCollisionGroup);
                 _setupSkunkBodyPhysics(skunkRightLeg, skunkCollisionGroup, bootCollisionGroup, rockCollisionGroup);
                 _setupSkunkBodyPhysics(skunkRightFoot, skunkCollisionGroup, bootCollisionGroup, rockCollisionGroup);
-                _setupSkunkBodyPhysics(skunkBody, skunkCollisionGroup, bootCollisionGroup, rockCollisionGroup);
-                _setupSkunkBodyPhysics(skunkHead, skunkCollisionGroup, bootCollisionGroup, rockCollisionGroup);
+                _setupSkunkBodyPhysics(skunkBody, skunkCollisionGroup, bootCollisionGroup, rockCollisionGroup, 'skunkBody');
+                _setupSkunkBodyPhysics(skunkHead, skunkCollisionGroup, bootCollisionGroup, rockCollisionGroup, 'skunkHead');
 
                 _setupSkunkBodyRotationalConstraint({bodyA: skunkBody, bodyB: skunkLeftArm, bodyAPivotPointOffset: [14, -4], bodyBPivotPointOffset: [-11, 4], minRotationDegrees: -50, maxRotationDegrees: 90});
                 _setupSkunkBodyRotationalConstraint({bodyA: skunkBody, bodyB: skunkRightArm, bodyAPivotPointOffset: [-14, -4], bodyBPivotPointOffset: [11, 4], minRotationDegrees: -90, maxRotationDegrees: 50});
@@ -155,6 +191,14 @@ define(['constants/stateConstants',
 
                 _setupSkunkBodyRotationalConstraint({bodyA: skunkBody, bodyB: skunkHead, bodyAPivotPointOffset: [-2, -60], bodyBPivotPointOffset: [0, 0], minRotationDegrees: -20, maxRotationDegrees: 20});
                 _setupSkunkBodyRotationalConstraint({bodyA: skunkBody, bodyB: skunkTail, bodyAPivotPointOffset: [5, 46], bodyBPivotPointOffset: [-3, 88], minRotationDegrees: -15, maxRotationDegrees: 15});
+
+                _enableSkunkRigid();
+
+                _boot.body.onBeginContact.add(function(bodyA, bodyB, shapeA, shapeB, equation) {
+                    if (bodyA && bodyA.sprite.key.substr(0, 5) === "skunk") {
+                        _disableSkunkRigid();
+                    }
+                }, this);
             };
 
             self.update = function() {

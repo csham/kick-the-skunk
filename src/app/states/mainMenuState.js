@@ -6,6 +6,7 @@ define(['constants/stateConstants'],
             self.create = function() {
                 self.game.add.sprite(0, 0, 'background');
                 self.game.add.sprite(0, 0, 'foreground');
+                self.game.add.sprite(573, 469, 'rock');
 
                 var startButton = self.game.add.group();
 
