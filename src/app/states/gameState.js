@@ -44,6 +44,10 @@ define(['constants/stateConstants',
                 self.game.add.sprite(0, 0, 'background');
                 self.game.add.sprite(0, 0, 'foreground');
 
+                var rockCollisionGroup = self.game.physics.p2.createCollisionGroup();
+                var rock = self.game.add.sprite(750, 611, 'rock');
+                physicsEnabledObjects.push(rock);
+
                 var bootCollisionGroup = self.game.physics.p2.createCollisionGroup();
                 _boot = self.game.add.sprite(930, 210, 'boot');
                 physicsEnabledObjects.push(_boot);
@@ -76,6 +80,13 @@ define(['constants/stateConstants',
                 _boot.body.setCollisionGroup(bootCollisionGroup);
                 _boot.body.collides(skunkCollisionGroup);
 
+                rock.body.debug = isDebugMode;
+                rock.body.clearShapes();
+                rock.body.loadPolygon('physicsData', 'rock');
+                rock.body.static = true;
+                rock.body.setCollisionGroup(rockCollisionGroup);
+                rock.body.collides(skunkCollisionGroup);
+
                 _mouseBody = new p2.Body();
                 self.game.physics.p2.world.addBody(_mouseBody);
 
@@ -83,17 +94,20 @@ define(['constants/stateConstants',
                 skunkTail.body.mass = 1;
                 skunkTail.body.setCollisionGroup(skunkCollisionGroup);
                 skunkTail.body.collides(bootCollisionGroup);
+                skunkTail.body.collides(rockCollisionGroup);
 
                 skunkBody.body.debug = isDebugMode;
                 skunkBody.body.mass = 1;
                 skunkBody.body.setCollisionGroup(skunkCollisionGroup);
                 skunkBody.body.collides(bootCollisionGroup);
+                skunkBody.body.collides(rockCollisionGroup);
                 //skunkBody.body.static = true;
 
                 skunkHead.body.debug = isDebugMode;
                 skunkHead.body.mass = 1;
                 skunkHead.body.setCollisionGroup(skunkCollisionGroup);
                 skunkHead.body.collides(bootCollisionGroup);
+                skunkHead.body.collides(rockCollisionGroup);
 
                 // May need to add/replace with a spring for tail connection
                 var skunkBodyTailRevoluteConstraint = self.game.physics.p2.createRevoluteConstraint(skunkBody, [-2, 60], skunkTail, [0, 100]);
