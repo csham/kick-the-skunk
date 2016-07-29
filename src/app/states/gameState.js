@@ -4,7 +4,7 @@ define(['constants/stateConstants',
         return function() {
             var self = this;
 
-            var DEBUG_MODE = false;
+            var DEBUG_MODE = true;
             var WORLD_GRAVITY = 1200;
             var BOOT_MASS = 5;
 
@@ -31,11 +31,16 @@ define(['constants/stateConstants',
                 _mouseBody.position[1] = self.game.physics.p2.pxmi(pointer.position.y);
             };
 
-            var _setupSkunkBodyPhysics = function(skunkBodyPart, skunkCollisionGroup, bootCollisionGroup) {
+            var _setupSkunkBodyPhysics = function(skunkBodyPart, skunkCollisionGroup, bootCollisionGroup, physicsDataElement) {
                 skunkBodyPart.body.debug = DEBUG_MODE;
                 skunkBodyPart.body.mass = 1;
                 skunkBodyPart.body.setCollisionGroup(skunkCollisionGroup);
                 skunkBodyPart.body.collides(bootCollisionGroup);
+
+                if (physicsDataElement) {
+                    skunkBodyPart.body.clearShapes();
+                    skunkBodyPart.body.loadPolygon('physicsData', physicsDataElement);
+                }
             };
 
             var _setupSkunkBodyRotationalConstraint = function(options) {
@@ -117,7 +122,7 @@ define(['constants/stateConstants',
                 _mouseBody = new p2.Body();
                 self.game.physics.p2.world.addBody(_mouseBody);
 
-                _setupSkunkBodyPhysics(skunkTail, skunkCollisionGroup, bootCollisionGroup);
+                _setupSkunkBodyPhysics(skunkTail, skunkCollisionGroup, bootCollisionGroup, 'skunkTail');
                 _setupSkunkBodyPhysics(skunkLeftArm, skunkCollisionGroup, bootCollisionGroup);
                 _setupSkunkBodyPhysics(skunkLeftHand, skunkCollisionGroup, bootCollisionGroup);
                 _setupSkunkBodyPhysics(skunkRightArm, skunkCollisionGroup, bootCollisionGroup);
@@ -146,6 +151,9 @@ define(['constants/stateConstants',
             };
 
             self.update = function() {
+                for (var i=0; i < _skunk.children.length; i++) {
+                    _skunk.children[i].body.setZeroVelocity();
+                }
             }
         };
 });
