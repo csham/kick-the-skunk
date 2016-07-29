@@ -54,6 +54,11 @@ define(['constants/stateConstants',
                 constraint.setLimits(lowerRotationLimit, upperRotationLimit);
             };
 
+            var _bootContactHandler = function(body, shape1, shape2, equation) {
+                console.log("body.velocity.y" + body.velocity.y);
+                console.log("body.velocity.x" + body.velocity.x);
+            };
+
             self.create = function() {
                 var physicsEnabledObjects = [];
                 self.game.input.onDown.add(_mouseClick, this);
@@ -125,6 +130,7 @@ define(['constants/stateConstants',
                 _boot.body.static = true;
                 _boot.body.setCollisionGroup(bootCollisionGroup);
                 _boot.body.collides(skunkCollisionGroup);
+                _boot.body.onBeginContact.add(_bootContactHandler);
 
                 rock.body.debug = DEBUG_MODE;
                 rock.body.clearShapes();
