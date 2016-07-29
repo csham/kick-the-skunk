@@ -5,8 +5,8 @@ define(['constants/stateConstants',
             var self = this;
 
             self.preload = function() {
-                self.load.image('preloaderBg', '/build/assets/images/loading-bg.png');
-                self.load.image('preloaderBar', '/build/assets/images/loading-bar.png');
+                self.load.image('preloaderBg', 'build/assets/images/loading-bg.png');
+                self.load.image('preloaderBar', 'build/assets/images/loading-bar.png');
             };
 
             self.create = function() {
