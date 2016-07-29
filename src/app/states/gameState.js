@@ -11,6 +11,7 @@ define(['constants/stateConstants',
             var _skunk = null;
             var _boot = null;
             var _mouseBody = null;
+            var _mouseBody = null;
             var _mouseConstraint = null;
 
             var _mouseClick = function(pointer) {
@@ -112,6 +113,9 @@ define(['constants/stateConstants',
                 _boot.body.static = true;
                 _boot.body.setCollisionGroup(bootCollisionGroup);
                 _boot.body.collides(skunkCollisionGroup);
+
+                _mouseBody = new p2.Body();
+                self.game.physics.p2.world.addBody(_mouseBody);
 
                 _setupSkunkBodyPhysics(skunkTail, skunkCollisionGroup, bootCollisionGroup);
                 _setupSkunkBodyPhysics(skunkLeftArm, skunkCollisionGroup, bootCollisionGroup);
