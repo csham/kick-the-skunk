@@ -34,14 +34,15 @@ define(['constants/stateConstants',
             var _setupSkunkBodyPhysics = function(skunkBodyPart, skunkCollisionGroup, bootCollisionGroup, rockCollisionGroup, physicsDataElement) {
                 skunkBodyPart.body.debug = DEBUG_MODE;
                 skunkBodyPart.body.mass = 1;
-                skunkBodyPart.body.setCollisionGroup(skunkCollisionGroup);
-                skunkBodyPart.body.collides(bootCollisionGroup);
-                skunkBodyPart.body.collides(rockCollisionGroup);
 
                 if (physicsDataElement) {
                     skunkBodyPart.body.clearShapes();
                     skunkBodyPart.body.loadPolygon('physicsData', physicsDataElement);
                 }
+
+                skunkBodyPart.body.setCollisionGroup(skunkCollisionGroup);
+                skunkBodyPart.body.collides(bootCollisionGroup);
+                skunkBodyPart.body.collides(rockCollisionGroup);
             };
 
             var _setupSkunkBodyRotationalConstraint = function(options) {
@@ -143,8 +144,8 @@ define(['constants/stateConstants',
                 _setupSkunkBodyPhysics(skunkLeftFoot, skunkCollisionGroup, bootCollisionGroup, rockCollisionGroup);
                 _setupSkunkBodyPhysics(skunkRightLeg, skunkCollisionGroup, bootCollisionGroup, rockCollisionGroup);
                 _setupSkunkBodyPhysics(skunkRightFoot, skunkCollisionGroup, bootCollisionGroup, rockCollisionGroup);
-                _setupSkunkBodyPhysics(skunkBody, skunkCollisionGroup, bootCollisionGroup, rockCollisionGroup);
-                _setupSkunkBodyPhysics(skunkHead, skunkCollisionGroup, bootCollisionGroup, rockCollisionGroup);
+                _setupSkunkBodyPhysics(skunkBody, skunkCollisionGroup, bootCollisionGroup, rockCollisionGroup, 'skunkBody');
+                _setupSkunkBodyPhysics(skunkHead, skunkCollisionGroup, bootCollisionGroup, rockCollisionGroup, 'skunkHead');
 
                 _setupSkunkBodyRotationalConstraint({bodyA: skunkBody, bodyB: skunkLeftArm, bodyAPivotPointOffset: [14, -4], bodyBPivotPointOffset: [-11, 4], minRotationDegrees: -50, maxRotationDegrees: 90});
                 _setupSkunkBodyRotationalConstraint({bodyA: skunkBody, bodyB: skunkRightArm, bodyAPivotPointOffset: [-14, -4], bodyBPivotPointOffset: [11, 4], minRotationDegrees: -90, maxRotationDegrees: 50});
