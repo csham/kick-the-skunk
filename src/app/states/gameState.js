@@ -4,19 +4,39 @@ define(['constants/stateConstants',
         return function() {
             var self = this;
 
+            var WORLD_GRAVITY = 1200;
+            var BOOT_MASS = 5;
+
             var _skunk = null;
             var _boot = null;
-            var _bootIsSwinging = true;
-            var _cursors = null;
+            var _mouseBody = null;
+            var _mouseConstraint = null;
+
+            var _mouseClick = function(pointer) {
+                _mouseConstraint = self.game.physics.p2.createRevoluteConstraint(_mouseBody, [0, 0], _boot, [16, -82]);
+                _boot.body.static = false;
+            };
+            var _mouseRelease = function() {
+                self.game.physics.p2.removeConstraint(_mouseConstraint);
+                _boot.body.setZeroVelocity();
+                _boot.body.setZeroRotation();
+                _boot.body.static = true;
+            };
+            var _mouseMove = function(pointer) {
+                _mouseBody.position[0] = self.game.physics.p2.pxmi(pointer.position.x);
+                _mouseBody.position[1] = self.game.physics.p2.pxmi(pointer.position.y);
+            };
 
             self.create = function() {
-                var isDebugMode = false;
+                var isDebugMode = true;
                 var physicsEnabledObjects = [];
-                _cursors = self.game.input.keyboard.createCursorKeys();
+                self.game.input.onDown.add(_mouseClick, this);
+                self.game.input.onUp.add(_mouseRelease, this);
+                self.game.input.addMoveCallback(_mouseMove, this);
 
                 self.game.physics.startSystem(Phaser.Physics.P2JS);
                 self.game.physics.p2.restitution = 0.1;
-                self.game.physics.p2.gravity.y = 100;
+                self.game.physics.p2.gravity.y = WORLD_GRAVITY;
 
                 self.game.add.sprite(0, 0, 'background');
                 self.game.add.sprite(0, 0, 'foreground');
@@ -48,9 +68,13 @@ define(['constants/stateConstants',
                 _boot.body.debug = isDebugMode;
                 _boot.body.clearShapes();
                 _boot.body.loadPolygon('physicsData', 'boot');
-                _boot.body.mass = 1;
+                _boot.body.mass = BOOT_MASS;
+                _boot.body.static = true;
                 _boot.body.setCollisionGroup(bootCollisionGroup);
                 _boot.body.collides(skunkCollisionGroup);
+
+                _mouseBody = new p2.Body();
+                self.game.physics.p2.world.addBody(_mouseBody);
 
                 skunkTail.body.debug = isDebugMode;
                 skunkTail.body.mass = 1;
@@ -81,22 +105,6 @@ define(['constants/stateConstants',
             };
 
             self.update = function() {
-                //_boot.update();
-                //_skunk.update();
-
-                _boot.body.setZeroVelocity();
-
-                if (_cursors.left.isDown) {
-                    _boot.body.moveLeft(400);
-                } else if (_cursors.right.isDown) {
-                    _boot.body.moveRight(400);
-                }
-
-                if (_cursors.up.isDown) {
-                    _boot.body.moveUp(400);
-                } else if (_cursors.down.isDown) {
-                    _boot.body.moveDown(400);
-                }
             }
         };
 });
