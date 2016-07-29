@@ -4,6 +4,7 @@ define(['constants/stateConstants',
         return function() {
             var self = this;
 
+            var DEBUG_MODE = false;
             var WORLD_GRAVITY = 1200;
             var BOOT_MASS = 5;
 
@@ -13,6 +14,8 @@ define(['constants/stateConstants',
             var _mouseConstraint = null;
 
             var _mouseClick = function(pointer) {
+                _boot.body.x = pointer.position.x;
+                _boot.body.y = pointer.position.y + 82;
                 _mouseConstraint = self.game.physics.p2.createRevoluteConstraint(_mouseBody, [0, 0], _boot, [16, -82]);
                 _boot.body.static = false;
             };
@@ -28,7 +31,7 @@ define(['constants/stateConstants',
             };
 
             self.create = function() {
-                var isDebugMode = true;
+                var isDebugMode = DEBUG_MODE;
                 var physicsEnabledObjects = [];
                 self.game.input.onDown.add(_mouseClick, this);
                 self.game.input.onUp.add(_mouseRelease, this);
