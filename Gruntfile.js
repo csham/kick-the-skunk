@@ -1,5 +1,8 @@
 module.exports = function(grunt) {
     grunt.initConfig({
+        clean: {
+            build: ['build']
+        },
         sass: {
             dist: {
                 options: {
@@ -52,7 +55,7 @@ module.exports = function(grunt) {
                         expand: true,
                         cwd: 'src/',
                         src: ['*.html'],
-                        dest: 'build'
+                        dest: '.'
                     }
                 ]
             },
@@ -71,7 +74,7 @@ module.exports = function(grunt) {
             webserver: {
                 options: {
                     port: grunt.option('port') | 8400,
-                    base: './build',
+                    base: '.',
                     livereload: true
                 }
             }
@@ -82,6 +85,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-connect');
+    grunt.loadNpmTasks('grunt-contrib-clean');
 
-    grunt.registerTask('default', ['sass', 'copy', 'connect:webserver', 'watch']);
+    grunt.registerTask('default', ['clean', 'sass', 'copy', 'connect:webserver', 'watch']);
 };
