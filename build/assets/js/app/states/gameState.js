@@ -52,6 +52,18 @@ define(['constants/stateConstants',
                 constraint.setLimits(lowerRotationLimit, upperRotationLimit);
             };
 
+            var _enableSkunkRigid = function() {
+                for (var i=0; i < _skunk.children.length; i++) {
+                    _skunk.children[i].body.static = true;
+                }
+            };
+
+            var _disableSkunkRigid = function() {
+                for (var i=0; i < _skunk.children.length; i++) {
+                    _skunk.children[i].body.static = false;
+                }
+            };
+
             self.create = function() {
                 var physicsEnabledObjects = [];
                 self.game.input.onDown.add(_mouseClick, this);
@@ -79,6 +91,8 @@ define(['constants/stateConstants',
                 var skunkCollisionGroup = self.game.physics.p2.createCollisionGroup();
 
                 _skunk = self.game.add.group();
+                _skunk.enableBody = true;
+                _skunk.physicsBodyType = Phaser.Physics.P2JS;
 
                 var skunkTail = _skunk.create(skunkBaseXPos + 7, skunkBaseYPos - 40, 'skunk-tail');
                 physicsEnabledObjects.push(skunkTail);
@@ -161,6 +175,14 @@ define(['constants/stateConstants',
 
                 _setupSkunkBodyRotationalConstraint({bodyA: skunkBody, bodyB: skunkHead, bodyAPivotPointOffset: [-2, -60], bodyBPivotPointOffset: [0, 0], minRotationDegrees: -20, maxRotationDegrees: 20});
                 _setupSkunkBodyRotationalConstraint({bodyA: skunkBody, bodyB: skunkTail, bodyAPivotPointOffset: [5, 46], bodyBPivotPointOffset: [-3, 88], minRotationDegrees: -15, maxRotationDegrees: 15});
+
+                _enableSkunkRigid();
+
+                _boot.body.onBeginContact.add(function(bodyA, bodyB, shapeA, shapeB, equation) {
+                    if (bodyA && bodyA.sprite.key.substr(0, 5) === "skunk") {
+                        _disableSkunkRigid();
+                    }
+                }, this);
             };
 
             self.update = function() {
