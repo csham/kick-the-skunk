@@ -15,6 +15,7 @@ define(['constants/stateConstants',
             var _mouseConstraint = null;
 
             var _mouseClick = function(pointer) {
+                _boot.body.angle = 0;
                 _boot.body.x = pointer.position.x;
                 _boot.body.y = pointer.position.y + 82;
                 _mouseConstraint = self.game.physics.p2.createRevoluteConstraint(_mouseBody, [0, 0], _boot, [16, -82]);
