@@ -4,7 +4,7 @@ define(['constants/stateConstants',
         return function() {
             var self = this;
 
-            var DEBUG_MODE = true;
+            var DEBUG_MODE = false;
             var WORLD_GRAVITY = 1200;
             var BOOT_MASS = 10;
 
