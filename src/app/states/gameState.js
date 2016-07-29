@@ -31,11 +31,12 @@ define(['constants/stateConstants',
                 _mouseBody.position[1] = self.game.physics.p2.pxmi(pointer.position.y);
             };
 
-            var _setupSkunkBodyPhysics = function(skunkBodyPart, skunkCollisionGroup, bootCollisionGroup, physicsDataElement) {
+            var _setupSkunkBodyPhysics = function(skunkBodyPart, skunkCollisionGroup, bootCollisionGroup, rockCollisionGroup, physicsDataElement) {
                 skunkBodyPart.body.debug = DEBUG_MODE;
                 skunkBodyPart.body.mass = 1;
                 skunkBodyPart.body.setCollisionGroup(skunkCollisionGroup);
                 skunkBodyPart.body.collides(bootCollisionGroup);
+                skunkBodyPart.body.collides(rockCollisionGroup);
 
                 if (physicsDataElement) {
                     skunkBodyPart.body.clearShapes();
@@ -63,13 +64,17 @@ define(['constants/stateConstants',
                 self.game.add.sprite(0, 0, 'background');
                 self.game.add.sprite(0, 0, 'foreground');
 
+                var rockCollisionGroup = self.game.physics.p2.createCollisionGroup();
+                var rock = self.game.add.sprite(750, 611, 'rock');
+                physicsEnabledObjects.push(rock);
+
                 var bootCollisionGroup = self.game.physics.p2.createCollisionGroup();
                 _boot = self.game.add.sprite(930, 210, 'boot');
                 physicsEnabledObjects.push(_boot);
 
 
-                var skunkBaseXPos = 666;
-                var skunkBaseYPos = 210;
+                var skunkBaseXPos = 740;
+                var skunkBaseYPos = 416;
                 var skunkCollisionGroup = self.game.physics.p2.createCollisionGroup();
 
                 _skunk = self.game.add.group();
@@ -119,20 +124,27 @@ define(['constants/stateConstants',
                 _boot.body.setCollisionGroup(bootCollisionGroup);
                 _boot.body.collides(skunkCollisionGroup);
 
+                rock.body.debug = DEBUG_MODE;
+                rock.body.clearShapes();
+                rock.body.loadPolygon('physicsData', 'rock');
+                rock.body.static = true;
+                rock.body.setCollisionGroup(rockCollisionGroup);
+                rock.body.collides(skunkCollisionGroup);
+
                 _mouseBody = new p2.Body();
                 self.game.physics.p2.world.addBody(_mouseBody);
 
-                _setupSkunkBodyPhysics(skunkTail, skunkCollisionGroup, bootCollisionGroup, 'skunkTail');
-                _setupSkunkBodyPhysics(skunkLeftArm, skunkCollisionGroup, bootCollisionGroup);
-                _setupSkunkBodyPhysics(skunkLeftHand, skunkCollisionGroup, bootCollisionGroup);
-                _setupSkunkBodyPhysics(skunkRightArm, skunkCollisionGroup, bootCollisionGroup);
-                _setupSkunkBodyPhysics(skunkRightHand, skunkCollisionGroup, bootCollisionGroup);
-                _setupSkunkBodyPhysics(skunkLeftLeg, skunkCollisionGroup, bootCollisionGroup);
-                _setupSkunkBodyPhysics(skunkLeftFoot, skunkCollisionGroup, bootCollisionGroup);
-                _setupSkunkBodyPhysics(skunkRightLeg, skunkCollisionGroup, bootCollisionGroup);
-                _setupSkunkBodyPhysics(skunkRightFoot, skunkCollisionGroup, bootCollisionGroup);
-                _setupSkunkBodyPhysics(skunkBody, skunkCollisionGroup, bootCollisionGroup);
-                _setupSkunkBodyPhysics(skunkHead, skunkCollisionGroup, bootCollisionGroup);
+                _setupSkunkBodyPhysics(skunkTail, skunkCollisionGroup, bootCollisionGroup, rockCollisionGroup, 'skunkTail');
+                _setupSkunkBodyPhysics(skunkLeftArm, skunkCollisionGroup, bootCollisionGroup, rockCollisionGroup);
+                _setupSkunkBodyPhysics(skunkLeftHand, skunkCollisionGroup, bootCollisionGroup, rockCollisionGroup);
+                _setupSkunkBodyPhysics(skunkRightArm, skunkCollisionGroup, bootCollisionGroup, rockCollisionGroup);
+                _setupSkunkBodyPhysics(skunkRightHand, skunkCollisionGroup, bootCollisionGroup, rockCollisionGroup);
+                _setupSkunkBodyPhysics(skunkLeftLeg, skunkCollisionGroup, bootCollisionGroup, rockCollisionGroup);
+                _setupSkunkBodyPhysics(skunkLeftFoot, skunkCollisionGroup, bootCollisionGroup, rockCollisionGroup);
+                _setupSkunkBodyPhysics(skunkRightLeg, skunkCollisionGroup, bootCollisionGroup, rockCollisionGroup);
+                _setupSkunkBodyPhysics(skunkRightFoot, skunkCollisionGroup, bootCollisionGroup, rockCollisionGroup);
+                _setupSkunkBodyPhysics(skunkBody, skunkCollisionGroup, bootCollisionGroup, rockCollisionGroup);
+                _setupSkunkBodyPhysics(skunkHead, skunkCollisionGroup, bootCollisionGroup, rockCollisionGroup);
 
                 _setupSkunkBodyRotationalConstraint({bodyA: skunkBody, bodyB: skunkLeftArm, bodyAPivotPointOffset: [14, -4], bodyBPivotPointOffset: [-11, 4], minRotationDegrees: -50, maxRotationDegrees: 90});
                 _setupSkunkBodyRotationalConstraint({bodyA: skunkBody, bodyB: skunkRightArm, bodyAPivotPointOffset: [-14, -4], bodyBPivotPointOffset: [11, 4], minRotationDegrees: -90, maxRotationDegrees: 50});
@@ -151,9 +163,6 @@ define(['constants/stateConstants',
             };
 
             self.update = function() {
-                for (var i=0; i < _skunk.children.length; i++) {
-                    _skunk.children[i].body.setZeroVelocity();
-                }
             }
         };
 });
