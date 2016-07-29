@@ -6,6 +6,11 @@ define(['constants/stateConstants'],
             self.create = function() {
                 self.game.add.sprite(0, 0, 'background');
                 self.game.add.sprite(0, 0, 'foreground');
+                var rock = self.game.add.sprite(750, 611, 'rock');
+
+                self.game.physics.startSystem(Phaser.Physics.P2JS);
+                self.game.physics.p2.updateBoundsCollisionGroup();
+                self.game.physics.p2.enable([rock]);
 
                 var startButton = self.game.add.group();
 

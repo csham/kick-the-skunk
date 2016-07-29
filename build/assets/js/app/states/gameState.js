@@ -6,7 +6,7 @@ define(['constants/stateConstants',
 
             var DEBUG_MODE = false;
             var WORLD_GRAVITY = 1200;
-            var BOOT_MASS = 10;
+            var BOOT_MASS = 1000;
 
             var _skunk = null;
             var _boot = null;
@@ -15,10 +15,12 @@ define(['constants/stateConstants',
             var _mouseConstraint = null;
 
             var _mouseClick = function(pointer) {
+                _boot.body.angle = 0;
                 _boot.body.x = pointer.position.x;
                 _boot.body.y = pointer.position.y + 82;
                 _mouseConstraint = self.game.physics.p2.createRevoluteConstraint(_mouseBody, [0, 0], _boot, [16, -82]);
                 _boot.body.static = false;
+                _boot.body.mass = BOOT_MASS;
             };
             var _mouseRelease = function() {
                 self.game.physics.p2.removeConstraint(_mouseConstraint);
@@ -134,7 +136,6 @@ define(['constants/stateConstants',
                 _boot.body.debug = DEBUG_MODE;
                 _boot.body.clearShapes();
                 _boot.body.loadPolygon('physicsData', 'boot');
-                _boot.body.mass = BOOT_MASS;
                 _boot.body.static = true;
                 _boot.body.setCollisionGroup(bootCollisionGroup);
                 _boot.body.collides(skunkCollisionGroup);
