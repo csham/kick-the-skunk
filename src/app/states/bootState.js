@@ -10,7 +10,7 @@ define(['constants/stateConstants',
             };
 
             self.create = function() {
-                self.game.stage.scaleMode = Phaser.ScaleManager.SHOW_ALL;
+                self.game.stage.scaleMode = Phaser.ScaleManager.NO_SCALE;
                 self.game.state.start(StateConstants.PRELOADER);
             };
         };

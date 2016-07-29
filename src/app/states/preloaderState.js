@@ -23,6 +23,11 @@ define(['constants/stateConstants'],
 
                 self.game.load.image('boot', '/assets/images/boot.png');
                 self.game.load.image('rock', '/assets/images/rock.png');
+
+                self.game.load.image('background', '/assets/images/background.png');
+                self.game.load.image('foreground', '/assets/images/foreground.png');
+
+                self.game.load.physics('physicsData', '/assets/data/physicsData.json');
             };
 
             self.create = function() {
