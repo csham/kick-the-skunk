@@ -1,6 +1,6 @@
 requirejs.config({
     paths: {
-        'Phaser': '/build/assets/lib/phaser.min'
+        'Phaser': '../../lib/phaser.min'
     }
 });
 
