@@ -10,7 +10,8 @@ define(['constants/stateConstants',
             var _cursors = null;
 
             self.create = function() {
-                var isDebugMode = true;
+                var isDebugMode = false;
+                var physicsEnabledObjects = [];
                 _cursors = self.game.input.keyboard.createCursorKeys();
 
                 self.game.physics.startSystem(Phaser.Physics.P2JS);
@@ -22,6 +23,7 @@ define(['constants/stateConstants',
 
                 var bootCollisionGroup = self.game.physics.p2.createCollisionGroup();
                 _boot = self.game.add.sprite(930, 210, 'boot');
+                physicsEnabledObjects.push(_boot);
 
 
                 var skunkBaseXPos = 666;
@@ -30,25 +32,30 @@ define(['constants/stateConstants',
 
                 _skunk = self.game.add.group();
 
-                //var skunkTail = _skunk.create(skunkBaseXPos, skunkBaseYPos, 'skunk-tail');
+                var skunkTail = _skunk.create(skunkBaseXPos, skunkBaseYPos, 'skunk-tail');
+                physicsEnabledObjects.push(skunkTail);
+
                 var skunkBody = _skunk.create(skunkBaseXPos + 30, skunkBaseYPos + 77, 'skunk-body');
+                physicsEnabledObjects.push(skunkBody);
+
                 var skunkHead = _skunk.create(skunkBaseXPos + 27, skunkBaseYPos + 47, 'skunk-head');
+                physicsEnabledObjects.push(skunkHead);
 
                 self.game.physics.p2.updateBoundsCollisionGroup();
-                self.game.physics.p2.enable([skunkHead, skunkBody, _boot]);
+                self.game.physics.p2.enable(physicsEnabledObjects);
                 self.game.physics.p2.setImpactEvents(true);
 
                 _boot.body.debug = isDebugMode;
                 _boot.body.clearShapes();
                 _boot.body.loadPolygon('physicsData', 'boot');
+                _boot.body.mass = 1;
                 _boot.body.setCollisionGroup(bootCollisionGroup);
                 _boot.body.collides(skunkCollisionGroup);
 
-                //skunkTail.body.debug = isDebugMode;
-                //skunkTail.body.mass = 1;
-                //skunkTail.body.setCollisionGroup(skunkCollisionGroup);
-                //skunkTail.body.collides(bootCollisionGroup);
-
+                skunkTail.body.debug = isDebugMode;
+                skunkTail.body.mass = 1;
+                skunkTail.body.setCollisionGroup(skunkCollisionGroup);
+                skunkTail.body.collides(bootCollisionGroup);
 
                 skunkBody.body.debug = isDebugMode;
                 skunkBody.body.mass = 1;
@@ -61,21 +68,16 @@ define(['constants/stateConstants',
                 skunkHead.body.setCollisionGroup(skunkCollisionGroup);
                 skunkHead.body.collides(bootCollisionGroup);
 
-                //Spring(world, bodyA, bodyB, restLength, stiffness, damping, worldA, worldB, localA, localB)
-                //var skunkBodyTailSpring = self.game.physics.p2.createSpring(skunkBody, skunkTail, 0, 10, 50);
-                var skunkBodyHeadSpring = self.game.physics.p2.createSpring(skunkBody, skunkHead, 1, 150, 50);
+                // May need to add/replace with a spring for tail connection
+                var skunkBodyTailRevoluteConstraint = self.game.physics.p2.createRevoluteConstraint(skunkBody, [-2, 60], skunkTail, [0, 100]);
+                var skunkTailLowerRotationLimit = Phaser.Math.degToRad(-10);
+                var skunkTailUpperRotationLimit = Phaser.Math.degToRad(10);
+                skunkBodyTailRevoluteConstraint.setLimits(skunkTailLowerRotationLimit, skunkTailUpperRotationLimit);
 
-                //PrismaticConstraint(world, bodyA, bodyB, lockRotation, anchorA, anchorB, axis, maxForce)
-                //var skunkBodyHeadConstraint = self.game.physics.p2.createPrismaticConstraint(skunkBody, skunkTail, false, [-2,-220], [0,0], [0,1]);
-                var skunkBodyHeadConstraint = self.game.physics.p2.createPrismaticConstraint(skunkBody, skunkHead, false, [-2,-220], [0,0], [0,1]);
-
-                //var skunkBodyTailConstraint = self.game.physics.p2.createDistanceConstraint(skunkBody, skunkTail, 0, [0, 0], [0, 0], 1)
-
-                skunkBodyHeadConstraint.lowerLimitEnabled = true;
-                skunkBodyHeadConstraint.lowerLimit = -8;
-                //skunkBodyHeadConstraint.upperLimitEnabled = true;
-                //skunkBodyHeadConstraint.upperLimit = -1;
-
+                var skunkBodyHeadRevoluteConstraint = self.game.physics.p2.createRevoluteConstraint(skunkBody, [-2, -60], skunkHead, [0, 0]);
+                var skunkHeadLowerRotationLimit = Phaser.Math.degToRad(-20);
+                var skunkHeadUpperRotationLimit = Phaser.Math.degToRad(20);
+                skunkBodyHeadRevoluteConstraint.setLimits(skunkHeadLowerRotationLimit, skunkHeadUpperRotationLimit);
             };
 
             self.update = function() {
