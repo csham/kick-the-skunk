@@ -13,6 +13,7 @@ define(['constants/stateConstants',
             var _mouseBody = null;
             var _mouseBody = null;
             var _mouseConstraint = null;
+            var _emitter = null;
 
             var _mouseClick = function(pointer) {
                 _boot.body.angle = 0;
@@ -55,8 +56,23 @@ define(['constants/stateConstants',
             };
 
             var _bootContactHandler = function(body, shape1, shape2, equation) {
-                console.log("body.velocity.y" + body.velocity.y);
-                console.log("body.velocity.x" + body.velocity.x);
+                if (body && body.velocity) {
+                    _emitter.x = body.x;
+                    _emitter.y = body.y;
+                    _emitter.start(true, 2000, null, 3);
+                }
+            };
+
+            var _enableSkunkRigid = function() {
+                for (var i=0; i < _skunk.children.length; i++) {
+                    _skunk.children[i].body.static = true;
+                }
+            };
+
+            var _disableSkunkRigid = function() {
+                for (var i=0; i < _skunk.children.length; i++) {
+                    _skunk.children[i].body.static = false;
+                }
             };
 
             self.create = function() {
@@ -86,6 +102,8 @@ define(['constants/stateConstants',
                 var skunkCollisionGroup = self.game.physics.p2.createCollisionGroup();
 
                 _skunk = self.game.add.group();
+                _skunk.enableBody = true;
+                _skunk.physicsBodyType = Phaser.Physics.P2JS;
 
                 var skunkTail = _skunk.create(skunkBaseXPos + 7, skunkBaseYPos - 40, 'skunk-tail');
                 physicsEnabledObjects.push(skunkTail);
@@ -139,6 +157,11 @@ define(['constants/stateConstants',
                 rock.body.setCollisionGroup(rockCollisionGroup);
                 rock.body.collides(skunkCollisionGroup);
 
+                _emitter = self.game.add.emitter(0, 0, 100);
+                _emitter.makeParticles('star');
+                _emitter.gravity = 200;
+                _emitter.setScale(0.2, 1, 0.2, 1, 0);
+
                 _mouseBody = new p2.Body();
                 self.game.physics.p2.world.addBody(_mouseBody);
 
@@ -168,6 +191,14 @@ define(['constants/stateConstants',
 
                 _setupSkunkBodyRotationalConstraint({bodyA: skunkBody, bodyB: skunkHead, bodyAPivotPointOffset: [-2, -60], bodyBPivotPointOffset: [0, 0], minRotationDegrees: -20, maxRotationDegrees: 20});
                 _setupSkunkBodyRotationalConstraint({bodyA: skunkBody, bodyB: skunkTail, bodyAPivotPointOffset: [5, 46], bodyBPivotPointOffset: [-3, 88], minRotationDegrees: -15, maxRotationDegrees: 15});
+
+                _enableSkunkRigid();
+
+                _boot.body.onBeginContact.add(function(bodyA, bodyB, shapeA, shapeB, equation) {
+                    if (bodyA && bodyA.sprite.key.substr(0, 5) === "skunk") {
+                        _disableSkunkRigid();
+                    }
+                }, this);
             };
 
             self.update = function() {
